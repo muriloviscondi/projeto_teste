@@ -2,6 +2,8 @@
 using Project.API.Controllers.Base;
 using Project.API.Models;
 using Project.Domain.Arguments.Person;
+using Project.Domain.Arguments.PersonPhone;
+using Project.Domain.Arguments.PhoneNumberType;
 using Project.Domain.Interfaces.Service;
 using Projeto.Infra.Transactions;
 using System.Threading.Tasks;
@@ -53,7 +55,14 @@ namespace Project.API.Controllers
             var request = new CreatePersonRequest()
             {
                 Name = model.Name,
-                Phones = model.Phones
+                PersonPhone = new CreatePersonPhoneRequest
+                {
+                    PhoneNumber = model.PersonPhone.PhoneNumber,
+                },
+                PhoneNumberType = new CreatePhoneNumberTypeRequest 
+                { 
+                    Name = model.PhoneType.Name,
+                },
             };
 
             var response = await _servicePerson.CreateAsync(request);
@@ -80,8 +89,14 @@ namespace Project.API.Controllers
             var request = new AlterPersonRequest()
             {
                 Id = model.Id,
-                Name = model.Name,
-                Phones = model.Phones
+                PersonPhone = new AlterPersonPhoneRequest
+                {
+                    PhoneNumber = model.PersonPhone.PhoneNumber,
+                },
+                PhoneNumberType = new AlterPhoneNumberTypeRequest
+                {
+                    Name = model.PhoneType.Name,
+                },
             };
 
 

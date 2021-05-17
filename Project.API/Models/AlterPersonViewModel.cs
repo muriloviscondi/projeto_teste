@@ -11,9 +11,8 @@ namespace Project.API.Models
         [Required(ErrorMessage = "O nome é obrigatório.")]
         public string Name { get; set; }
 
-        [Required(ErrorMessage = "O telefone é obrigatório.")]
-        public string[] Phones { get; set; }
-
         public CreatePersonPhoneViewModel PersonPhone { get; set; }
+
+        public CreatePhoneNumberTypeViewModel PhoneType { get; }
     }
 }

@@ -19,7 +19,7 @@ namespace Project.Domain.Entities
 
         public string Name { get; private set; }
 
-        public ICollection<PersonPhone> Phones { get; private set; }
+        public PersonPhone Phones { get; set; }
 
         public ICollection<IEventData> DomainEvents => throw new NotImplementedException();
 

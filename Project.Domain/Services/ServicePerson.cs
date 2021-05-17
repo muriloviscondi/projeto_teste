@@ -21,15 +21,20 @@ namespace Project.Domain.Services
         public ServicePerson() { }
 
         public ServicePerson(
-           IRepositoryPerson repositoryPerson)
+           IRepositoryPerson repositoryPerson, IServicePersonPhone servicePersonPhone,
+           IServicePhoneNumberType servicePhoneNumberType)
         {
             _repositoryPerson = repositoryPerson;
+            _servicePersonPhone = servicePersonPhone;
+            _servicePhoneNumberType = servicePhoneNumberType;
         }
 
         #endregion
 
         #region Properties
         private readonly IRepositoryPerson _repositoryPerson;
+        private readonly IServicePersonPhone _servicePersonPhone;
+        private readonly IServicePhoneNumberType _servicePhoneNumberType;
         #endregion
 
         public async Task<ResponseBase> CreateAsync(CreatePersonRequest request)
@@ -41,6 +46,12 @@ namespace Project.Domain.Services
             }
 
             var person = new Person(request.Name);
+
+            var phoneNumberType = new PhoneNumberType(request.PhoneNumberType.Name);
+
+            var personphone = new PersonPhone(request.PersonPhone.PhoneNumber, phoneNumberType.Id, person.Id);
+
+            person.Phones = personphone;
 
             AddNotifications(person);
 
@@ -55,7 +66,11 @@ namespace Project.Domain.Services
 
         public async Task<PersonResponse> GetByIdAsync(string id)
         {
-            Person person = await _repositoryPerson.GetByIdAsync(id);
+            Func<IQueryable<Person>, IIncludableQueryable<Person, object>> include = s => s
+                           .Include(phone => phone.Phones)
+                           .ThenInclude(phone => phone.PhoneNumberType);
+
+            Person person = await _repositoryPerson.GetByIdAsync(id, includeProperties: include);
 
             if (person == null)
             {
@@ -70,7 +85,7 @@ namespace Project.Domain.Services
         {
             Func<IQueryable<Person>, IIncludableQueryable<Person, object>> includes = s => s
                            .Include(phone => phone.Phones)
-                            .ThenInclude(phone => phone.PhoneNumberType.Name);
+                           .ThenInclude(phone => phone.PhoneNumberType);
 
             Expression<Func<Person, bool>> where = a => a.Name.Any();
 
@@ -86,7 +101,12 @@ namespace Project.Domain.Services
                 return null;
             }
 
-            Person person = await _repositoryPerson.GetByIdAsync(request.Id, false);
+            Func<IQueryable<Person>, IIncludableQueryable<Person, object>> include = s => s
+                           .Include(person => person.Phones)
+                           .ThenInclude(person => person.PhoneNumberType);
+
+            Person person = await _repositoryPerson.GetByIdAsync(request.Id, asNoTracking: false,
+                includeProperties: include);
 
             if (person == null)
             {
@@ -102,6 +122,9 @@ namespace Project.Domain.Services
             {
                 return null;
             }
+
+            await _servicePersonPhone.AlterAsync(request.PersonPhone);
+            await _servicePhoneNumberType.AlterAsync(request.PhoneNumberType);
 
             _repositoryPerson.Update(person);
             return new ResponseBase();

@@ -1,4 +1,6 @@
-﻿using Project.Domain.Interfaces.Arguments;
+﻿using Project.Domain.Arguments.PersonPhone;
+using Project.Domain.Arguments.PhoneNumberType;
+using Project.Domain.Interfaces.Arguments;
 
 namespace Project.Domain.Arguments.Person
 {
@@ -6,6 +8,8 @@ namespace Project.Domain.Arguments.Person
     {
         public string Name { get; set; }
 
-        public string[] Phones { get; set; }
+        public CreatePersonPhoneRequest PersonPhone { get; set; }
+
+        public CreatePhoneNumberTypeRequest PhoneNumberType { get; set; }
     }
 }
